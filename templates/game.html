@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Horror Escape Room - Play</title>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Oswald:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/static/css/game.css"/>
+</head>
+<body>
+  <!-- JUMPSCARE -->
+  <div id="js-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:#000;align-items:center;justify-content:center;">
+    <img src="/static/images/jumpscare.jpg" style="width:100%;height:100%;object-fit:cover;animation:jsz .5s ease;"/>
+  </div>
+
+  <!-- BACKGROUND -->
+  <div class="room-bg" id="roomBg"></div>
+  <div class="color-tint" id="colorTint"></div>
+
+  <!-- FOG -->
+  <div style="position:fixed;inset:0;z-index:2;pointer-events:none;overflow:hidden;">
+    <div class="fog f1"></div>
+    <div class="fog f2"></div>
+  </div>
+
+  <!-- FLICKER -->
+  <div id="flicker" style="position:fixed;inset:0;z-index:3;background:#fff;opacity:0;pointer-events:none;transition:opacity .05s;"></div>
+
+  <!-- VIGNETTE -->
+  <div id="vignette" class="vignette"></div>
+
+  <!-- HUD -->
+  <div class="hud">
+    <div class="hud-left">
+      <div class="hud-label">⏰ TIME</div>
+      <div class="timer" id="timer">05:00</div>
+    </div>
+    <div class="hud-center" id="roomName">🚪 ROOM 1</div>
+    <div class="hud-right">
+      <div class="hud-label">SANITY</div>
+      <div class="hearts" id="hearts">
+        <span id="h1">❤️</span>
+        <span id="h2">❤️</span>
+        <span id="h3">❤️</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME AREA -->
+  <div class="game-area">
+    <div class="room-desc" id="roomDesc">Loading...</div>
+    <div class="action-btns" id="actionBtns"></div>
+    <div class="inventory" id="inventory">
+      <span style="color:rgba(232,232,232,.4);font-size:.75rem;letter-spacing:1px;">🎒 INVENTORY:</span>
+      <div id="invItems"><span style="color:rgba(232,232,232,.25);font-style:italic;">Empty</span></div>
+    </div>
+    <div class="nav-btns" id="navBtns"></div>
+  </div>
+
+  <!-- PUZZLE -->
+  <div id="puzzle" class="puzzle hidden">
+    <div class="puzzle-inner" id="puzzleInner"></div>
+    <button class="close-btn" onclick="closePuzzle()">✕ CLOSE</button>
+  </div>
+
+  <!-- MESSAGE -->
+  <div id="msg" class="msg hidden"></div>
+
+  <!-- GAME OVER -->
+  <div id="gameOver" class="endscreen hidden">
+    <div class="end-inner">
+      <h1>💀 YOU DIED 💀</h1>
+      <p id="goReason">You lost all sanity!</p>
+      <p style="margin:10px 0;color:rgba(232,232,232,.6);">Time survived: <span id="goTime" style="color:#cc0000;">0:00</span></p>
+      <div class="end-btns">
+        <button onclick="restartGame()">🔄 TRY AGAIN</button>
+        <a href="/">🏠 MENU</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- WIN -->
+  <div id="winScreen" class="endscreen hidden">
+    <div class="end-inner">
+      <h1 style="color:#ffd700;text-shadow:0 0 30px rgba(255,215,0,.6);">🎉 YOU ESCAPED!</h1>
+      <p>You survived the horror!</p>
+      <p style="margin:8px 0;">Time left: <span id="winTime" style="color:#ffd700;">0:00</span></p>
+      <p style="margin:8px 0;">Lives: <span id="winLives" style="color:#cc0000;">0</span> ❤️</p>
+      <div style="display:flex;gap:10px;justify-content:center;margin:15px 0;flex-wrap:wrap;">
+        <input id="pName" type="text" placeholder="Your name..." maxlength="20" style="padding:10px 14px;background:rgba(0,0,0,.8);border:1px solid rgba(255,215,0,.4);color:#fff;font-family:'Oswald',sans-serif;font-size:.95rem;"/>
+        <button onclick="saveScore()" style="padding:10px 20px;background:linear-gradient(135deg,#8b6914,#ffd700);border:none;color:#000;font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer;">💾 SAVE</button>
+      </div>
+      <div class="end-btns">
+        <button onclick="restartGame()">🔄 PLAY AGAIN</button>
+        <a href="/">🏠 MENU</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUDIO -->
+  <audio id="bgMusic" loop src="/static/sounds/background_music.mp3"></audio>
+  <audio id="jsSound" src="/static/sounds/jumpscare.mp3"></audio>
+  <audio id="stepSound" src="/static/sounds/footstep.mp3"></audio>
+  <audio id="doorSound" src="/static/sounds/door_open.mp3"></audio>
+  <audio id="hbSound" loop src="/static/sounds/heartbeat.mp3"></audio>
+  <audio id="goSound" src="/static/sounds/game_over.mp3"></audio>
+
+  <script src="/static/js/game.js"></script>
+</body>
+</html>

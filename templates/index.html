@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Horror Escape Room</title>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Oswald:wght@300;400;600;700&family=Special+Elite&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--blood:#cc0000;--dark:#8b0000;--white:#f0ece4;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{height:100vh;overflow:hidden;font-family:'Oswald',sans-serif;background:#000;cursor:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><text y='15' font-size='15'>💀</text></svg>"),auto;}
+
+    /* HORROR HOUSE BACKGROUND */
+    .house-bg{position:fixed;inset:0;background:url('/static/images/house_bg.jpg')center/cover no-repeat;filter:brightness(.38) saturate(.6);z-index:0;animation:bgPulse 10s ease-in-out infinite;}
+    @keyframes bgPulse{0%,100%{filter:brightness(.38)saturate(.6)}50%{filter:brightness(.28)saturate(.4)}}
+
+    /* OVERLAYS */
+    .vig{position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 20%,rgba(0,0,0,.82)100%),linear-gradient(to top,rgba(0,0,0,.9)0%,transparent 50%),linear-gradient(to bottom,rgba(0,0,0,.7)0%,transparent 40%);z-index:1;pointer-events:none;}
+    .fog-wrap{position:fixed;inset:0;z-index:2;pointer-events:none;overflow:hidden;}
+    .fog{position:absolute;bottom:-80px;width:220%;height:220px;background:linear-gradient(to top,rgba(200,200,200,.09),transparent);border-radius:50%;animation:fogD 18s linear infinite;}
+    .fog2{height:160px;bottom:-50px;opacity:.55;animation:fogD 25s linear infinite reverse;animation-delay:-8s;}
+    @keyframes fogD{0%{transform:translateX(-45%)}100%{transform:translateX(0%)}}
+    .flick{position:fixed;inset:0;z-index:3;background:#fff;opacity:0;pointer-events:none;transition:opacity .04s;}
+
+    /* LIGHTNING EFFECT */
+    .lightning{position:fixed;inset:0;z-index:4;background:#fff;opacity:0;pointer-events:none;}
+
+    /* BLOOD DRIPS */
+    .blood{position:fixed;top:0;left:0;width:100%;z-index:10;display:flex;justify-content:space-around;padding:0 15px;}
+    .drip{width:5px;background:linear-gradient(to bottom,#5a0000,#cc0000);border-radius:0 0 50% 50%;animation:drip 3s ease-in-out infinite;transform-origin:top;}
+    @keyframes drip{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.18)}}
+
+    /* FLOATING GHOSTS */
+    .ghost{position:fixed;font-size:1.8rem;z-index:5;opacity:.15;pointer-events:none;animation:gf 7s ease-in-out infinite;}
+    .g1{right:12%;top:15%;animation-delay:0s;}
+    .g2{right:25%;bottom:20%;font-size:1.3rem;animation-delay:3.5s;}
+    .g3{left:8%;bottom:30%;font-size:1rem;animation-delay:5s;}
+    @keyframes gf{0%,100%{transform:translateY(0)rotate(-4deg);opacity:.15}50%{transform:translateY(-18px)rotate(4deg);opacity:.06}}
+
+    /* TOP LEFT TITLE */
+    .top-left{position:fixed;top:0;left:0;z-index:50;padding:22px 26px;}
+    .title{font-family:'Creepster',cursive;font-size:clamp(2rem,5vw,3.2rem);color:var(--white);text-shadow:0 0 30px rgba(204,0,0,.8),2px 2px 0 #000,4px 4px 0 rgba(139,0,0,.3);line-height:.92;letter-spacing:3px;animation:tf 7s infinite;}
+    .title span{color:#cc0000;display:block;font-size:clamp(2.5rem,6vw,4rem);}
+    @keyframes tf{0%,93%,100%{opacity:1}94%{opacity:.5}96%{opacity:.15}97%{opacity:1}}
+    .subtitle{font-size:.58rem;letter-spacing:5px;color:rgba(204,0,0,.6);text-transform:uppercase;margin-top:6px;font-family:'Special Elite',cursive;}
+
+    /* TOP RIGHT BADGES */
+    .top-right{position:fixed;top:0;right:0;z-index:50;padding:20px 22px;display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+    .ver{font-size:.58rem;letter-spacing:2px;color:rgba(240,236,228,.25);}
+    .badges{display:flex;gap:8px;}
+    .badge{display:flex;flex-direction:column;align-items:center;background:rgba(0,0,0,.7);border:1px solid rgba(204,0,0,.3);padding:7px 10px;min-width:46px;position:relative;}
+    .badge-icon{font-size:1rem;}
+    .badge-num{position:absolute;top:-7px;right:-7px;background:#cc0000;color:#fff;font-size:.58rem;font-weight:700;padding:2px 5px;border-radius:10px;min-width:18px;text-align:center;}
+    .badge-lbl{font-size:.5rem;letter-spacing:1px;color:rgba(240,236,228,.32);margin-top:2px;}
+
+    /* CENTER: MAIN BUTTONS */
+    .left-panel{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:50;padding:0 26px;display:flex;flex-direction:column;gap:14px;}
+
+    .mbtn{position:relative;border:none;background:none;cursor:pointer;text-align:left;width:220px;transition:transform .25s;display:block;text-decoration:none;}
+    .mbtn:hover{transform:translateX(12px) scale(1.04);}
+    .mbtn:active{transform:translateX(4px) scale(.97);}
+
+    .binner{display:flex;align-items:center;gap:13px;padding:15px 20px;font-family:'Special Elite',cursive;font-size:1.1rem;letter-spacing:1px;position:relative;overflow:hidden;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 50%,calc(100% - 12px) 100%,0 100%);}
+    .binner::after{content:'';position:absolute;top:0;left:-100%;width:55%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);transition:left .5s;}
+    .mbtn:hover .binner::after{left:150%;}
+
+    .mbtn-start .binner{background:rgba(0,0,0,.88);color:var(--white);border:2px solid rgba(204,0,0,.7);border-right:none;animation:bp 2.5s ease-in-out infinite;}
+    .mbtn-start:hover .binner{background:rgba(139,0,0,.55);border-color:#cc0000;}
+    @keyframes bp{0%,100%{box-shadow:0 0 20px rgba(204,0,0,.3)}50%{box-shadow:0 0 38px rgba(204,0,0,.7)}}
+
+    .mbtn-red .binner{background:linear-gradient(135deg,rgba(139,0,0,.82),rgba(70,0,0,.92));color:var(--white);border:2px solid rgba(204,0,0,.5);border-right:none;}
+    .mbtn-red:hover .binner{background:linear-gradient(135deg,rgba(180,0,0,.9),rgba(110,0,0,.95));}
+
+    .mbtn-sec .binner{background:rgba(0,0,0,.72);color:rgba(240,236,228,.62);border:1px solid rgba(240,236,228,.15);border-right:none;font-size:.88rem;}
+    .mbtn-sec:hover .binner{background:rgba(20,20,20,.9);color:var(--white);border-color:rgba(240,236,228,.4);}
+
+    .bicon{font-size:1.1rem;flex-shrink:0;}
+
+    .load-in{opacity:0;transform:translateX(-25px);animation:li .55s ease forwards;}
+    @keyframes li{to{opacity:1;transform:translateX(0)}}
+    .load-in:nth-child(1){animation-delay:.1s}
+    .load-in:nth-child(2){animation-delay:.22s}
+    .load-in:nth-child(3){animation-delay:.34s}
+    .load-in:nth-child(4){animation-delay:.46s}
+
+    /* RIGHT ICONS */
+    .right-panel{position:fixed;right:22px;top:50%;transform:translateY(-50%);z-index:50;display:flex;flex-direction:column;gap:10px;}
+    .ibtn{width:50px;height:50px;background:rgba(0,0,0,.72);border:1px solid rgba(240,236,228,.15);display:flex;align-items:center;justify-content:center;font-size:1.2rem;cursor:pointer;transition:all .3s;position:relative;}
+    .ibtn:hover{background:rgba(139,0,0,.4);border-color:rgba(204,0,0,.6);box-shadow:0 0 14px rgba(204,0,0,.4);transform:scale(1.1);}
+    .tip{position:absolute;right:58px;background:rgba(0,0,0,.92);border:1px solid rgba(204,0,0,.4);padding:5px 10px;font-size:.65rem;letter-spacing:1px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .3s;color:var(--white);font-family:'Oswald',sans-serif;}
+    .ibtn:hover .tip{opacity:1;}
+
+    /* BOTTOM */
+    .best-time{position:fixed;bottom:68px;left:50%;transform:translateX(-50%);z-index:50;font-family:'Special Elite',cursive;font-size:.72rem;letter-spacing:3px;color:rgba(240,236,228,.4);white-space:nowrap;text-transform:uppercase;}
+    .best-time b{color:#cc0000;}
+    .room-label{position:fixed;bottom:46px;left:50%;transform:translateX(-50%);z-index:50;font-size:.56rem;letter-spacing:3px;color:rgba(240,236,228,.22);white-space:nowrap;text-transform:uppercase;transition:opacity .5s;}
+    .dots{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:50;display:flex;gap:9px;align-items:center;}
+    .dot{width:7px;height:7px;border-radius:50%;background:rgba(240,236,228,.2);border:1px solid rgba(240,236,228,.35);transition:all .4s;cursor:pointer;}
+    .dot.active{background:#cc0000;border-color:#cc0000;box-shadow:0 0 8px rgba(204,0,0,.8);width:18px;border-radius:4px;}
+
+    /* ROOM PREVIEW SLIDES */
+    .slide{position:fixed;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 2s ease;z-index:0;filter:brightness(.38) saturate(.65);}
+    .slide.active{opacity:1;}
+
+    /* WARNING MODAL */
+    .warn{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:40px;}
+    .warn h2{font-family:'Creepster',cursive;font-size:clamp(2rem,6vw,3.5rem);color:#cc0000;text-shadow:0 0 20px #cc0000;animation:wb .6s infinite;}
+    @keyframes wb{0%,100%{opacity:1}50%{opacity:.3}}
+    .warn p{font-size:.88rem;color:rgba(240,236,228,.7);letter-spacing:1px;max-width:380px;line-height:1.6;font-family:'Special Elite',cursive;}
+    .warn button{margin-top:10px;padding:14px 38px;background:linear-gradient(135deg,#8b0000,#cc0000);color:#fff;border:2px solid #cc0000;font-family:'Oswald',sans-serif;font-size:1rem;font-weight:700;letter-spacing:3px;cursor:pointer;transition:all .3s;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);}
+    .warn button:hover{background:linear-gradient(135deg,#cc0000,#f00);transform:scale(1.05);box-shadow:0 0 25px rgba(204,0,0,.7);}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.92);border:1px solid rgba(204,0,0,.5);border-left:3px solid #cc0000;padding:10px 22px;font-size:.78rem;letter-spacing:2px;z-index:999;color:var(--white);animation:li .3s ease;white-space:nowrap;}
+
+    /* PROGRESS NOTIFICATION */
+    .notif{position:fixed;top:80px;right:20px;z-index:200;background:rgba(0,0,0,.9);border:1px solid rgba(204,0,0,.5);border-left:3px solid #cc0000;padding:12px 18px;max-width:280px;font-size:.8rem;letter-spacing:1px;color:rgba(240,236,228,.9);font-family:'Special Elite',cursive;line-height:1.5;animation:nIn .4s ease;display:none;}
+    @keyframes nIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+    .notif-out{animation:nOut .4s ease forwards;}
+    @keyframes nOut{to{transform:translateX(110%);opacity:0}}
+  </style>
+</head>
+<body>
+
+  <!-- HORROR HOUSE BG (default) -->
+  <div class="house-bg" id="houseBg"></div>
+
+  <!-- ROOM PREVIEW SLIDES (hidden until slideshow mode) -->
+  <div class="slide" id="s0" style="background-image:url('/static/images/room1_bg.jpg')"></div>
+  <div class="slide" id="s1" style="background-image:url('/static/images/room2_bg.jpg')"></div>
+  <div class="slide" id="s2" style="background-image:url('/static/images/room3_bg.jpg')"></div>
+  <div class="slide" id="s3" style="background-image:url('/static/images/room4_bg.jpg')"></div>
+
+  <div class="vig"></div>
+  <div class="fog-wrap"><div class="fog"></div><div class="fog fog2"></div></div>
+  <div class="flick" id="flick"></div>
+  <div class="lightning" id="lightning"></div>
+
+  <!-- BLOOD -->
+  <div class="blood">
+    <div class="drip" style="height:42px;animation-delay:0s"></div>
+    <div class="drip" style="height:68px;animation-delay:.4s"></div>
+    <div class="drip" style="height:28px;animation-delay:.9s"></div>
+    <div class="drip" style="height:58px;animation-delay:.2s"></div>
+    <div class="drip" style="height:48px;animation-delay:.7s"></div>
+    <div class="drip" style="height:76px;animation-delay:1.1s"></div>
+    <div class="drip" style="height:33px;animation-delay:.5s"></div>
+    <div class="drip" style="height:52px;animation-delay:1.4s"></div>
+  </div>
+
+  <div class="ghost g1">👻</div>
+  <div class="ghost g2">💀</div>
+  <div class="ghost g3">👁️</div>
+
+  <!-- TOP LEFT TITLE -->
+  <div class="top-left">
+    <div class="title">HORROR<span>ESCAPE</span>ROOM</div>
+    <div class="subtitle">⚠️ Enter If You Dare ⚠️</div>
+  </div>
+
+  <!-- TOP RIGHT BADGES -->
+  <div class="top-right">
+    <div class="ver">v 1.0</div>
+    <div class="badges">
+      <div class="badge"><span class="badge-icon">🏆</span><span class="badge-num" id="scoreCount">0</span><span class="badge-lbl">SCORES</span></div>
+      <div class="badge"><span class="badge-icon">💀</span><span class="badge-num" id="deathCount">0</span><span class="badge-lbl">DEATHS</span></div>
+    </div>
+  </div>
+
+  <!-- LEFT BUTTONS -->
+  <div class="left-panel">
+    <a href="/story" class="mbtn mbtn-start load-in">
+      <div class="binner"><span class="bicon">▶</span> START GAME</div>
+    </a>
+    <button class="mbtn mbtn-red load-in" onclick="resetGame()">
+      <div class="binner"><span class="bicon">↺</span> RESET GAME</div>
+    </button>
+    <a href="/howtoplay" class="mbtn mbtn-sec load-in">
+      <div class="binner"><span class="bicon">📖</span> HOW TO PLAY</div>
+    </a>
+    <a href="/leaderboard" class="mbtn mbtn-sec load-in">
+      <div class="binner"><span class="bicon">🏆</span> LEADERBOARD</div>
+    </a>
+  </div>
+
+  <!-- RIGHT ICONS -->
+  <div class="right-panel">
+    <div class="ibtn" onclick="toggleSound()" id="sndBtn">🔊<span class="tip">SOUND</span></div>
+    <div class="ibtn" onclick="toggleFS()">⛶<span class="tip">FULLSCREEN</span></div>
+    <div class="ibtn" onclick="toggleSlideshow()" id="ssBtn">🖼️<span class="tip">ROOM PREVIEW</span></div>
+  </div>
+
+  <!-- BOTTOM -->
+  <div class="best-time">BEST FINISH TIME: <b id="btDisp">--H : --M : --S</b></div>
+  <div class="room-label" id="rLabel" style="opacity:0;">ROOM 1 — THE ENTRY</div>
+  <div class="dots" id="dotsEl" style="opacity:0;">
+    <div class="dot active" id="d0" onclick="goSlide(0)"></div>
+    <div class="dot" id="d1" onclick="goSlide(1)"></div>
+    <div class="dot" id="d2" onclick="goSlide(2)"></div>
+    <div class="dot" id="d3" onclick="goSlide(3)"></div>
+  </div>
+
+  <!-- PROGRESS NOTIFICATION -->
+  <div class="notif" id="notif"></div>
+
+  <!-- WARNING -->
+  <div class="warn" id="warn">
+    <h2>⚠️ WARNING ⚠️</h2>
+    <p>This game contains jump scares, horror imagery, and frightening sound effects.<br/>Headphones recommended!</p>
+    <button onclick="dismiss()">I AM READY 💀</button>
+  </div>
+
+  <audio id="music" loop src="/static/sounds/background_music.mp3"></audio>
+  <audio id="hvr" src="/static/sounds/door_open.mp3"></audio>
+  <audio id="thunderSnd" src="/static/sounds/door_open.mp3"></audio>
+
+  <script>
+    const ROOMS=["ROOM 1 — THE ENTRY","ROOM 2 — THE STAIRCASE","ROOM 3 — ABANDONED HALL","ROOM 4 — THE FINAL BRIDGE"];
+    let cur=0, sndOn=true, slideTimer=null, slideshowActive=false;
+
+    // FLICKER
+    function flicker(){
+      const f=document.getElementById('flick');
+      [0,80,140,200,290].forEach((t,i)=>setTimeout(()=>f.style.opacity=i%2===0?'0.12':'0',t));
+    }
+    setInterval(()=>{if(Math.random()<0.1)flicker();},4500);
+
+    // LIGHTNING
+    function lightning(){
+      const l=document.getElementById('lightning');
+      l.style.opacity='0.6';
+      setTimeout(()=>l.style.opacity='0',80);
+      setTimeout(()=>{l.style.opacity='0.3';setTimeout(()=>l.style.opacity='0',60);},200);
+    }
+    setInterval(()=>{if(Math.random()<0.08)lightning();},6000);
+
+    // SLIDESHOW
+    function goSlide(n){
+      if(!slideshowActive)return;
+      document.getElementById('s'+cur).classList.remove('active');
+      document.getElementById('d'+cur).classList.remove('active');
+      cur=n;
+      document.getElementById('s'+cur).classList.add('active');
+      document.getElementById('d'+cur).classList.add('active');
+      document.getElementById('rLabel').textContent=ROOMS[n];
+      flicker();
+    }
+
+    function toggleSlideshow(){
+      slideshowActive=!slideshowActive;
+      const houseBg=document.getElementById('houseBg');
+      const dots=document.getElementById('dotsEl');
+      const label=document.getElementById('rLabel');
+      const ssBtn=document.getElementById('ssBtn');
+      if(slideshowActive){
+        houseBg.style.opacity='0';
+        dots.style.opacity='1';
+        label.style.opacity='1';
+        ssBtn.textContent='🏚️';
+        document.getElementById('s'+cur).classList.add('active');
+        slideTimer=setInterval(()=>goSlide((cur+1)%4),4500);
+        showNotif('👁️ Previewing the rooms...');
+      } else {
+        houseBg.style.opacity='1';
+        dots.style.opacity='0';
+        label.style.opacity='0';
+        ssBtn.textContent='🖼️';
+        document.getElementById('s'+cur).classList.remove('active');
+        clearInterval(slideTimer);
+      }
+    }
+
+    // DISMISS WARNING
+    function dismiss(){
+      const w=document.getElementById('warn');
+      w.style.transition='opacity .8s';
+      w.style.opacity='0';
+      setTimeout(()=>{
+        w.style.display='none';
+        if(sndOn){const m=document.getElementById('music');m.volume=0.3;m.play().catch(()=>{});}
+        showNotif('👻 The house is watching you...',4000);
+      },800);
+    }
+
+    // SOUND
+    function toggleSound(){
+      sndOn=!sndOn;
+      document.getElementById('sndBtn').textContent=sndOn?'🔊':'🔇';
+      const m=document.getElementById('music');
+      sndOn?m.play().catch(()=>{}):m.pause();
+    }
+
+    // FULLSCREEN
+    function toggleFS(){
+      !document.fullscreenElement?document.documentElement.requestFullscreen().catch(()=>{}):document.exitFullscreen();
+    }
+
+    // RESET
+    function resetGame(){
+      if(confirm('Reset all scores and progress?')){
+        localStorage.removeItem('hScores');
+        localStorage.removeItem('hDeaths');
+        localStorage.removeItem('hDifficulty');
+        updateStats();
+        showNotif('💀 All progress wiped...');
+      }
+    }
+
+    // STATS
+    function updateStats(){
+      const scores=JSON.parse(localStorage.getItem('hScores')||'[]');
+      const deaths=parseInt(localStorage.getItem('hDeaths')||'0');
+      document.getElementById('scoreCount').textContent=scores.length;
+      document.getElementById('deathCount').textContent=deaths;
+      if(scores.length>0){
+        const b=scores[0],m=Math.floor(b.timeLeft/60),s=b.timeLeft%60;
+        document.getElementById('btDisp').textContent=`--H : ${String(m).padStart(2,'0')}M : ${String(s).padStart(2,'0')}S`;
+      }
+    }
+
+    // PROGRESS NOTIFICATION
+    function showNotif(msg,dur=3000){
+      const n=document.getElementById('notif');
+      n.textContent=msg;n.style.display='block';n.className='notif';
+      clearTimeout(window._nt);
+      window._nt=setTimeout(()=>{
+        n.classList.add('notif-out');
+        setTimeout(()=>n.style.display='none',400);
+      },dur);
+    }
+
+    // TOAST
+    function toast(msg){
+      const t=document.createElement('div');
+      t.className='toast';t.textContent=msg;
+      document.body.appendChild(t);
+      setTimeout(()=>t.remove(),2500);
+    }
+
+    // HOVER SOUND
+    document.querySelectorAll('.mbtn').forEach(b=>b.addEventListener('mouseenter',()=>{
+      if(!sndOn)return;
+      const s=document.getElementById('hvr');s.currentTime=0;s.volume=0.12;s.play().catch(()=>{});
+    }));
+
+    window.addEventListener('load',updateStats);
+  </script>
+</body>
+</html>

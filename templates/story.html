@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Horror Escape Room - Story</title>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Special+Elite&family=Oswald:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{height:100vh;overflow:hidden;background:#000;font-family:'Special Elite',cursive;cursor:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><text y='15' font-size='15'>💀</text></svg>"),auto;}
+
+    /* BG */
+    .story-bg{position:fixed;inset:0;background-size:cover;background-position:center;z-index:0;transition:background-image 2s ease, filter 2s ease;filter:brightness(.35) saturate(.6);}
+
+    /* OVERLAYS */
+    .vig{position:fixed;inset:0;z-index:1;pointer-events:none;
+      background:radial-gradient(ellipse at center,transparent 20%,rgba(0,0,0,.85)100%),
+      linear-gradient(to top,rgba(0,0,0,.95)0%,transparent 55%),
+      linear-gradient(to bottom,rgba(0,0,0,.8)0%,transparent 45%);}
+    .fog-wrap{position:fixed;inset:0;z-index:2;pointer-events:none;overflow:hidden;}
+    .fog{position:absolute;bottom:-60px;width:200%;height:200px;background:linear-gradient(to top,rgba(200,200,200,.08),transparent);border-radius:50%;animation:fogD 15s linear infinite;}
+    @keyframes fogD{0%{transform:translateX(-45%)}100%{transform:translateX(0%)}}
+    .flick{position:fixed;inset:0;z-index:3;background:#fff;opacity:0;pointer-events:none;}
+
+    /* FILM GRAIN */
+    .grain{position:fixed;inset:0;z-index:4;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");pointer-events:none;}
+
+    /* SKIP BUTTON */
+    .skip-btn{position:fixed;top:22px;right:22px;z-index:100;padding:10px 22px;background:rgba(0,0,0,.75);border:1px solid rgba(240,236,228,.25);color:rgba(240,236,228,.6);font-family:'Oswald',sans-serif;font-size:.78rem;letter-spacing:3px;cursor:pointer;transition:all .3s;text-transform:uppercase;}
+    .skip-btn:hover{background:rgba(139,0,0,.4);border-color:rgba(204,0,0,.6);color:#fff;box-shadow:0 0 12px rgba(204,0,0,.4);}
+
+    /* PAGE INDICATOR */
+    .page-indicator{position:fixed;top:26px;left:50%;transform:translateX(-50%);z-index:100;display:flex;gap:10px;}
+    .pi-dot{width:30px;height:3px;background:rgba(240,236,228,.2);border-radius:2px;transition:background .5s;}
+    .pi-dot.active{background:#cc0000;box-shadow:0 0 6px rgba(204,0,0,.7);}
+    .pi-dot.done{background:rgba(204,0,0,.4);}
+
+    /* STORY CONTENT */
+    .story-content{position:relative;z-index:50;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 30px 80px;}
+
+    /* DATE/LOCATION LABEL */
+    .story-label{font-family:'Oswald',sans-serif;font-size:.65rem;letter-spacing:5px;color:rgba(204,0,0,.7);text-transform:uppercase;margin-bottom:18px;opacity:0;transition:opacity 1s;}
+    .story-label.show{opacity:1;}
+
+    /* TEXT BOX */
+    .text-box{max-width:680px;width:100%;background:rgba(0,0,0,.72);border:1px solid rgba(240,236,228,.08);border-left:3px solid #cc0000;padding:24px 28px;position:relative;}
+    .story-text{font-size:clamp(.9rem,2.2vw,1.1rem);line-height:1.9;color:rgba(240,236,228,.88);letter-spacing:.6px;min-height:120px;}
+    .cursor{display:inline-block;width:2px;height:1.1em;background:#cc0000;margin-left:2px;animation:blink .7s infinite;vertical-align:middle;}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+    /* NEXT / CONTINUE BUTTON */
+    .next-btn{position:fixed;bottom:22px;right:22px;z-index:100;padding:12px 28px;background:linear-gradient(135deg,#8b0000,#cc0000);color:#fff;border:none;font-family:'Oswald',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:3px;cursor:pointer;transition:all .3s;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);opacity:0;pointer-events:none;}
+    .next-btn.show{opacity:1;pointer-events:all;animation:btnPulse 2s infinite;}
+    @keyframes btnPulse{0%,100%{box-shadow:0 0 15px rgba(204,0,0,.3)}50%{box-shadow:0 0 30px rgba(204,0,0,.7)}}
+    .next-btn:hover{background:linear-gradient(135deg,#cc0000,#f00);transform:scale(1.04);}
+
+    /* PIANO IMAGE OVERLAY */
+    .piano-overlay{position:fixed;inset:0;z-index:6;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity 2s;}
+    .piano-overlay.show{opacity:1;}
+    .piano-frame{width:min(320px,80vw);border:1px solid rgba(240,236,228,.15);box-shadow:0 0 60px rgba(0,0,0,.8);filter:sepia(.4) brightness(.7);}
+
+    /* BLOOD DRIPS */
+    .blood{position:fixed;top:0;left:0;width:100%;z-index:10;display:flex;justify-content:space-around;padding:0 15px;pointer-events:none;}
+    .drip{width:4px;background:linear-gradient(to bottom,#5a0000,#cc0000);border-radius:0 0 50% 50%;animation:drip 3s ease-in-out infinite;transform-origin:top;}
+    @keyframes drip{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.18)}}
+
+    /* TRANSITION */
+    .black-fade{position:fixed;inset:0;z-index:200;background:#000;opacity:0;pointer-events:none;transition:opacity 1.2s;}
+    .black-fade.show{opacity:1;}
+  </style>
+</head>
+<body>
+
+  <div class="story-bg" id="storyBg"></div>
+  <div class="vig"></div>
+  <div class="fog-wrap"><div class="fog"></div></div>
+  <div class="flick" id="flick"></div>
+  <div class="grain"></div>
+
+  <!-- BLOOD -->
+  <div class="blood">
+    <div class="drip" style="height:35px;animation-delay:0s"></div>
+    <div class="drip" style="height:55px;animation-delay:.5s"></div>
+    <div class="drip" style="height:25px;animation-delay:1s"></div>
+    <div class="drip" style="height:65px;animation-delay:.3s"></div>
+    <div class="drip" style="height:40px;animation-delay:.8s"></div>
+  </div>
+
+  <!-- SKIP BUTTON -->
+  <button class="skip-btn" onclick="skipStory()">⏭ SKIP</button>
+
+  <!-- PAGE DOTS -->
+  <div class="page-indicator">
+    <div class="pi-dot active" id="pd0"></div>
+    <div class="pi-dot" id="pd1"></div>
+  </div>
+
+  <!-- PIANO IMAGE (story page 2) -->
+  <div class="piano-overlay" id="pianoOverlay">
+    <img class="piano-frame" src="/static/images/story2_bg.jpg" alt="Piano"/>
+  </div>
+
+  <!-- STORY TEXT -->
+  <div class="story-content">
+    <div class="story-label" id="storyLabel">📍 WILLOWBROOK MANOR — 1987</div>
+    <div class="text-box">
+      <div class="story-text" id="storyText"></div>
+      <span class="cursor" id="cursor"></span>
+    </div>
+  </div>
+
+  <!-- NEXT / START BUTTON -->
+  <button class="next-btn" id="nextBtn" onclick="nextPage()">NEXT ➡</button>
+
+  <!-- BLACK FADE -->
+  <div class="black-fade" id="blackFade"></div>
+
+  <audio id="bgMusic" loop src="/static/sounds/background_music.mp3"></audio>
+  <audio id="pageSound" src="/static/sounds/door_open.mp3"></audio>
+
+  <script>
+    // ===== STORY DATA =====
+    const STORY = [
+      {
+        bg: "/static/images/story1_bg.jpg",
+        label: "📍 WILLOWBROOK MANOR — 1987",
+        text: "In 1987, the Willowbrook family vanished without a trace. No bodies were found. The police discovered only a single note on the dining table — scrawled in red... \"It's still inside.\" The house was sealed. Nobody dared enter. Until tonight. Until you.",
+        nextLabel: "NEXT ➡"
+      },
+      {
+        bg: "/static/images/story2_bg.jpg",
+        label: "🎹 THE NIGHT OF DISAPPEARANCE",
+        text: "Neighbours reported hearing piano music playing all night — even though the family was gone. The melody was always the same. Always stopping at the same note. You can still hear it now... faintly... coming from deep inside the house. The door locked behind you. You have 5 minutes before it finds you.",
+        nextLabel: "▶ BEGIN THE NIGHTMARE",
+        isLast: true,
+        showPiano: true
+      }
+    ];
+
+    let currentPage = 0;
+    let typeInterval = null;
+    let typingDone = false;
+
+    // ===== INIT =====
+    function initStory() {
+      const music = document.getElementById('bgMusic');
+      music.volume = 0.25;
+      music.play().catch(()=>{});
+      loadPage(0);
+    }
+
+    // ===== LOAD PAGE =====
+    function loadPage(n) {
+      const page = STORY[n];
+      currentPage = n;
+      typingDone = false;
+
+      // Update dots
+      document.querySelectorAll('.pi-dot').forEach((d,i)=>{
+        d.className='pi-dot';
+        if(i < n) d.classList.add('done');
+        if(i === n) d.classList.add('active');
+      });
+
+      // Hide next btn
+      const nextBtn = document.getElementById('nextBtn');
+      nextBtn.className = 'next-btn';
+      nextBtn.textContent = page.nextLabel || 'NEXT ➡';
+
+      // Fade to black then load
+      const fade = document.getElementById('blackFade');
+      fade.classList.add('show');
+
+      setTimeout(() => {
+        // Set background
+        document.getElementById('storyBg').style.backgroundImage = `url('${page.bg}')`;
+
+        // Set label
+        const label = document.getElementById('storyLabel');
+        label.textContent = page.label;
+        label.classList.remove('show');
+        setTimeout(() => label.classList.add('show'), 300);
+
+        // Piano overlay
+        const piano = document.getElementById('pianoOverlay');
+        if(page.showPiano) {
+          setTimeout(() => piano.classList.add('show'), 1500);
+        } else {
+          piano.classList.remove('show');
+        }
+
+        // Clear text
+        document.getElementById('storyText').textContent = '';
+        document.getElementById('cursor').style.display = 'inline-block';
+
+        // Fade in
+        setTimeout(() => {
+          fade.classList.remove('show');
+          // Start typewriter after fade
+          setTimeout(() => startTypewriter(page.text), 600);
+        }, 400);
+
+      }, 1200);
+
+      // Sound
+      setTimeout(() => {
+        const s = document.getElementById('pageSound');
+        s.currentTime = 0; s.volume = 0.2; s.play().catch(()=>{});
+      }, 500);
+    }
+
+    // ===== TYPEWRITER =====
+    function startTypewriter(text) {
+      const el = document.getElementById('storyText');
+      el.textContent = '';
+      const words = text.split(' ');
+      let i = 0;
+      clearInterval(typeInterval);
+
+      typeInterval = setInterval(() => {
+        if(i < words.length) {
+          el.textContent += (i === 0 ? '' : ' ') + words[i];
+          i++;
+        } else {
+          clearInterval(typeInterval);
+          typingDone = true;
+          document.getElementById('cursor').style.display = 'none';
+          // Show next button
+          setTimeout(() => {
+            document.getElementById('nextBtn').classList.add('show');
+          }, 500);
+          // Auto advance after 5s on page 1
+          if(currentPage === 0) {
+            setTimeout(() => {
+              if(currentPage === 0) nextPage();
+            }, 5000);
+          }
+        }
+      }, 180);
+    }
+
+    // ===== NEXT PAGE =====
+    function nextPage() {
+      // If still typing, complete it instantly
+      if(!typingDone) {
+        clearInterval(typeInterval);
+        const page = STORY[currentPage];
+        document.getElementById('storyText').textContent = page.text;
+        document.getElementById('cursor').style.display = 'none';
+        typingDone = true;
+        document.getElementById('nextBtn').classList.add('show');
+        return;
+      }
+
+      const page = STORY[currentPage];
+      if(page.isLast) {
+        goToLevelSelect();
+        return;
+      }
+      loadPage(currentPage + 1);
+    }
+
+    // ===== SKIP =====
+    function skipStory() {
+      clearInterval(typeInterval);
+      goToLevelSelect();
+    }
+
+    // ===== GO TO LEVEL SELECT =====
+    function goToLevelSelect() {
+      const fade = document.getElementById('blackFade');
+      fade.classList.add('show');
+      setTimeout(() => window.location.href = '/levelselect', 1200);
+    }
+
+    // ===== FLICKER =====
+    setInterval(() => {
+      if(Math.random() < 0.1) {
+        const f = document.getElementById('flick');
+        [0,80,150,210].forEach((t,i) => setTimeout(() => f.style.opacity = i%2===0 ? '0.1' : '0', t));
+      }
+    }, 5000);
+
+    // Click anywhere to advance if typing done
+    document.addEventListener('click', (e) => {
+      if(e.target.classList.contains('skip-btn') || e.target.classList.contains('next-btn')) return;
+      if(typingDone) nextPage();
+      else {
+        // Speed up typing on click
+        clearInterval(typeInterval);
+        const page = STORY[currentPage];
+        document.getElementById('storyText').textContent = page.text;
+        document.getElementById('cursor').style.display = 'none';
+        typingDone = true;
+        document.getElementById('nextBtn').classList.add('show');
+      }
+    });
+
+    window.addEventListener('load', initStory);
+  </script>
+</body>
+</html>

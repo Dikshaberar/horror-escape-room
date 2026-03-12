@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Leaderboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Oswald:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{min-height:100vh;background:#000;color:#e8e8e8;font-family:'Oswald',sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;gap:24px;}
+    body::before{content:'';position:fixed;inset:0;background:url('/static/images/room4_bg.jpg')center/cover;filter:brightness(.2);z-index:-1;}
+    h1{font-family:'Creepster',cursive;font-size:clamp(2rem,8vw,4rem);color:#cc0000;text-shadow:0 0 20px rgba(204,0,0,.6);}
+    table{width:100%;max-width:520px;border-collapse:collapse;}
+    th{background:rgba(139,0,0,.5);padding:11px 14px;font-size:.78rem;letter-spacing:2px;color:rgba(232,232,232,.8);text-align:left;border-bottom:1px solid rgba(139,0,0,.5);}
+    td{padding:11px 14px;font-size:.88rem;border-bottom:1px solid rgba(255,255,255,.05);background:rgba(0,0,0,.5);}
+    tr:nth-child(1) td{color:#ffd700;}
+    tr:nth-child(2) td{color:#c0c0c0;}
+    tr:nth-child(3) td{color:#cd7f32;}
+    .empty{color:rgba(232,232,232,.3);font-size:.9rem;letter-spacing:2px;text-align:center;padding:30px;}
+    .back{padding:13px 32px;background:linear-gradient(135deg,#8b0000,#cc0000);color:#fff;border:none;font-family:'Oswald',sans-serif;font-size:.88rem;font-weight:700;letter-spacing:3px;cursor:pointer;text-decoration:none;display:inline-block;transition:all .3s;}
+    .back:hover{background:linear-gradient(135deg,#cc0000,#f00);box-shadow:0 0 20px rgba(204,0,0,.6);}
+  </style>
+</head>
+<body>
+  <h1>🏆 LEADERBOARD</h1>
+  <p style="color:rgba(232,232,232,.35);letter-spacing:2px;font-size:.78rem;">TOP SURVIVORS</p>
+  <div id="lb" style="width:100%;max-width:520px;"></div>
+  <a href="/" class="back">🏠 MAIN MENU</a>
+  <script>
+    const scores=JSON.parse(localStorage.getItem('hScores')||'[]');
+    const lb=document.getElementById('lb');
+    if(!scores.length){lb.innerHTML='<p class="empty">No survivors yet... 💀</p>';}
+    else{
+      const medals=['🥇','🥈','🥉'];
+      lb.innerHTML=`<table><thead><tr><th>#</th><th>NAME</th><th>TIME LEFT</th><th>LIVES</th><th>DATE</th></tr></thead><tbody>
+      ${scores.map((s,i)=>{
+        const m=Math.floor(s.timeLeft/60),sec=s.timeLeft%60;
+        return `<tr><td>${medals[i]||(i+1)}</td><td>${s.name}</td><td>${m}:${sec.toString().padStart(2,'0')}</td><td>${'❤️'.repeat(s.lives)}</td><td style="color:rgba(232,232,232,.4);font-size:.78rem;">${s.date}</td></tr>`;
+      }).join('')}</tbody></table>`;
+    }
+  </script>
+</body>
+</html>

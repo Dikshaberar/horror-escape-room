@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>How To Play</title>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Oswald:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{min-height:100vh;background:#000;color:#e8e8e8;font-family:'Oswald',sans-serif;display:flex;flex-direction:column;align-items:center;padding:40px 20px;gap:18px;}
+    body::before{content:'';position:fixed;inset:0;background:url('/static/images/room1_bg.jpg')center/cover;filter:brightness(.2);z-index:-1;}
+    h1{font-family:'Creepster',cursive;font-size:clamp(2rem,8vw,3.5rem);color:#cc0000;text-shadow:0 0 20px rgba(204,0,0,.6);}
+    .card{width:100%;max-width:520px;background:rgba(0,0,0,.78);border:1px solid rgba(139,0,0,.4);border-left:3px solid #cc0000;padding:18px 22px;}
+    .card h3{font-family:'Creepster',cursive;color:#cc0000;font-size:1.3rem;margin-bottom:10px;letter-spacing:2px;}
+    .card p,.card li{color:rgba(232,232,232,.7);font-size:.88rem;line-height:1.7;font-weight:300;letter-spacing:.4px;}
+    .card ul{padding-left:18px;}
+    .card li{margin-bottom:5px;}
+    .back{padding:13px 32px;background:linear-gradient(135deg,#8b0000,#cc0000);color:#fff;border:none;font-family:'Oswald',sans-serif;font-size:.88rem;font-weight:700;letter-spacing:3px;cursor:pointer;text-decoration:none;display:inline-block;transition:all .3s;margin-top:8px;}
+    .back:hover{background:linear-gradient(135deg,#cc0000,#f00);box-shadow:0 0 20px rgba(204,0,0,.6);}
+  </style>
+</head>
+<body>
+  <h1>📖 HOW TO PLAY</h1>
+  <div class="card"><h3>🎯 OBJECTIVE</h3><p>You are trapped in a haunted building. Explore 4 terrifying rooms, collect clues, solve puzzles, and find the escape code before the 5-minute timer runs out!</p></div>
+  <div class="card"><h3>🎮 HOW TO PLAY</h3><ul>
+    <li>Click action buttons to interact with objects</li>
+    <li>Items you collect appear in your inventory</li>
+    <li>Use items to unlock doors and solve puzzles</li>
+    <li>Move to the next room when you find required item</li>
+  </ul></div>
+  <div class="card"><h3>❤️ LIVES / SANITY</h3><ul>
+    <li>You start with 3 lives</li>
+    <li>Jump scares cost 1 life!</li>
+    <li>Wrong puzzle answers cost 1 life</li>
+    <li>Risky actions may cost 1 life</li>
+    <li>Lose all 3 = GAME OVER 💀</li>
+  </ul></div>
+  <div class="card"><h3>⏰ TIMER</h3><p>You have exactly 5 minutes to escape. When it hits 0:00 it's over. More time remaining = higher score!</p></div>
+  <div class="card"><h3>🔢 THE CODE</h3><p>Find 4 code pieces hidden across the rooms. Combine them to form the final 4-digit escape code. Look carefully at every clue!</p></div>
+  <div class="card"><h3>😱 JUMP SCARES</h3><p>Random jump scares can happen at ANY moment. They get more frequent the deeper you go. Turn volume up for full experience... if you dare! 👻</p></div>
+  <a href="/" class="back">🏠 MAIN MENU</a>
+</body>
+</html>
