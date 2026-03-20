@@ -277,7 +277,7 @@
       w.style.opacity='0';
       setTimeout(()=>{
         w.style.display='none';
-        if(sndOn){const m=document.getElementById('music');m.volume=0.3;m.play().catch(()=>{});}
+        if(sndOn){const m=document.getElementById('music');m.volume=0.3;m.load();m.play().catch(()=>{});}
         showNotif('👻 The house is watching you...',4000);
       },800);
     }
