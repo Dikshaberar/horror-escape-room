@@ -468,26 +468,54 @@ function buildRoom3D(roomNum) {
         roughness: 0.9
     });
 
-    let roomGeo;
+    const plainMat = new THREE.MeshLambertMaterial({ map: wallTex, color: rData.color });
+    const darkFloorMat = new THREE.MeshLambertMaterial({ color: 0x111111 });
+    const darkCeilMat = new THREE.MeshLambertMaterial({ color: 0x0a0a0a });
+
+    scene.fog.density = 0.02;
+    scene.fog.color.setHex(0x111111);
+
     if (rData.isBridge) {
-        roomGeo = new THREE.PlaneGeometry(roomSize, roomSize*2);
-        const floor = new THREE.Mesh(roomGeo, wallMat);
+        // Just floor for bridge
+        const floor = new THREE.Mesh(new THREE.PlaneGeometry(roomSize, roomSize*3), plainMat);
         floor.rotation.x = -Math.PI / 2;
-        floor.position.y = -roomHeight/2;
-        floor.position.z = -roomSize/2;
-        floor.receiveShadow = true;
+        floor.position.set(0, -3, -5);
         roomGroup.add(floor);
-        scene.fog.color.setHex(0xaaaaaa);
-        scene.fog.density = 0.03;
     } else {
-        roomGeo = new THREE.BoxGeometry(roomSize, roomHeight, roomSize*2);
-        const roomMesh = new THREE.Mesh(roomGeo, wallMat);
-        roomMesh.position.y = 0;
-        roomMesh.position.z = -roomSize/2;
-        roomMesh.receiveShadow = true;
-        roomGroup.add(roomMesh);
-        scene.fog.color.setHex(0x111111);
-        scene.fog.density = 0.03;
+        // FLOOR
+        const floor = new THREE.Mesh(new THREE.PlaneGeometry(roomSize, roomSize*2), darkFloorMat);
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.set(0, -3, -5);
+        roomGroup.add(floor);
+
+        // CEILING
+        const ceil = new THREE.Mesh(new THREE.PlaneGeometry(roomSize, roomSize*2), darkCeilMat);
+        ceil.rotation.x = Math.PI / 2;
+        ceil.position.set(0, 3, -5);
+        roomGroup.add(ceil);
+
+        // BACK WALL
+        const backWall = new THREE.Mesh(new THREE.PlaneGeometry(roomSize, 6), plainMat);
+        backWall.position.set(0, 0, -10);
+        roomGroup.add(backWall);
+
+        // FRONT WALL
+        const frontWall = new THREE.Mesh(new THREE.PlaneGeometry(roomSize, 6), plainMat);
+        frontWall.rotation.y = Math.PI;
+        frontWall.position.set(0, 0, 5);
+        roomGroup.add(frontWall);
+
+        // LEFT WALL
+        const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(roomSize*2, 6), plainMat);
+        leftWall.rotation.y = Math.PI / 2;
+        leftWall.position.set(-5, 0, -5);
+        roomGroup.add(leftWall);
+
+        // RIGHT WALL
+        const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(roomSize*2, 6), plainMat);
+        rightWall.rotation.y = -Math.PI / 2;
+        rightWall.position.set(5, 0, -5);
+        roomGroup.add(rightWall);
     }
 
     if (rData.objects) {
