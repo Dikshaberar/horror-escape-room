@@ -96,7 +96,7 @@ function init3D() {
     const container = document.getElementById('canvas-container');
     
     scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x000000, 0.05)
+    scene.fog = new THREE.FogExp2(0x111111, 0.03);
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
     camera.position.y = 2;
@@ -106,10 +106,19 @@ function init3D() {
     renderer.shadowMap.enabled = true;
     container.appendChild(renderer.domElement);
 
-    ambientLight = new THREE.AmbientLight(0xffffff,0.6);
+    ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
 
-    flashlight = new THREE.SpotLight(0xffffff, 1, 30, Math.PI / 6, 0.5, 1);
+    // Extra fill lights so room is visible
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.6);
+    fillLight.position.set(0, 10, 5);
+    scene.add(fillLight);
+
+    const fillLight2 = new THREE.DirectionalLight(0xff4444, 0.3);
+    fillLight2.position.set(0, -5, -5);
+    scene.add(fillLight2);
+
+    flashlight = new THREE.SpotLight(0xffffff, 3, 80, Math.PI / 4, 0.3, 1);
     flashlight.position.set(0, 0, 0);
     flashlight.target.position.set(0, 0, -1);
     flashlight.castShadow = true;
@@ -469,7 +478,7 @@ function buildRoom3D(roomNum) {
         floor.receiveShadow = true;
         roomGroup.add(floor);
         scene.fog.color.setHex(0xaaaaaa);
-        scene.fog.density = 0.08;
+        scene.fog.density = 0.03;
     } else {
         roomGeo = new THREE.BoxGeometry(roomSize, roomHeight, roomSize*2);
         const roomMesh = new THREE.Mesh(roomGeo, wallMat);
@@ -477,8 +486,8 @@ function buildRoom3D(roomNum) {
         roomMesh.position.z = -roomSize/2;
         roomMesh.receiveShadow = true;
         roomGroup.add(roomMesh);
-        scene.fog.color.setHex(0x000000);
-        scene.fog.density = 0.15;
+        scene.fog.color.setHex(0x111111);
+        scene.fog.density = 0.03;
     }
 
     if (rData.objects) {
@@ -538,8 +547,8 @@ function buildRoom3D(roomNum) {
         flashlight.distance = 50;
     } else {
         flashlight.angle = Math.PI / 8;
-        flashlight.intensity = 3;
-        flashlight.distance = 50;
+        flashlight.intensity = 0.8;
+        flashlight.distance = 20;
     }
 
     // Spawn ghost after delay in higher rooms
