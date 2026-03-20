@@ -96,7 +96,7 @@ function init3D() {
     const container = document.getElementById('canvas-container');
     
     scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x000000, 0.15);
+    scene.fog = new THREE.FogExp2(0x000000, 0.05)
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
     camera.position.y = 2;
@@ -106,7 +106,7 @@ function init3D() {
     renderer.shadowMap.enabled = true;
     container.appendChild(renderer.domElement);
 
-    ambientLight = new THREE.AmbientLight(0x222222);
+    ambientLight = new THREE.AmbientLight(0xffffff,0.6);
     scene.add(ambientLight);
 
     flashlight = new THREE.SpotLight(0xffffff, 1, 30, Math.PI / 6, 0.5, 1);
@@ -538,8 +538,8 @@ function buildRoom3D(roomNum) {
         flashlight.distance = 50;
     } else {
         flashlight.angle = Math.PI / 8;
-        flashlight.intensity = 0.8;
-        flashlight.distance = 20;
+        flashlight.intensity = 3;
+        flashlight.distance = 50;
     }
 
     // Spawn ghost after delay in higher rooms
