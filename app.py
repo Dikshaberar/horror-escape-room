@@ -1,8 +1,10 @@
 from flask import Flask, render_template, jsonify, request
 import sqlite3
+import os
 
 app = Flask(__name__)
 
+# create db table if not exists
 def init_db():
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
@@ -40,18 +42,24 @@ def leaderboard():
 def howtoplay():
     return render_template('howtoplay.html')
 
+# save player score to db
 @app.route('/save_score', methods=['POST'])
 def save_score():
     data = request.json
+    name = data.get('name', 'Anonymous')
+    time_left = data.get('time_left', 0)
+    lives = data.get('lives', 0)
+    date = data.get('date', '')
+
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
     c.execute('INSERT INTO scores (player_name, time_left, lives, date) VALUES (?,?,?,?)',
-              (data.get('name','Anonymous'), data.get('time_left',0),
-               data.get('lives',0), data.get('date','')))
+              (name, time_left, lives, date))
     conn.commit()
     conn.close()
     return jsonify({'status': 'success'})
 
+# get top 10 scores
 @app.route('/get_scores')
 def get_scores():
     conn = sqlite3.connect('database.db')
@@ -59,11 +67,13 @@ def get_scores():
     c.execute('SELECT player_name, time_left, lives, date FROM scores ORDER BY time_left DESC LIMIT 10')
     rows = c.fetchall()
     conn.close()
-    return jsonify([{'name':r[0],'time_left':r[1],'lives':r[2],'date':r[3]} for r in rows])
+    result = []
+    for r in rows:
+        result.append({'name': r[0], 'time_left': r[1], 'lives': r[2], 'date': r[3]})
+    return jsonify(result)
 
 if __name__ == '__main__':
     init_db()
-    import os
     port = int(os.environ.get('PORT', 5000))
     print("Running at http://localhost:" + str(port))
     app.run(host='0.0.0.0', port=port, debug=False)
